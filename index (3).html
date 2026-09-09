@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Equipment Borrowing Monitoring System</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <header class="app-header">
+    <h1>Equipment Borrowing &amp; Return Monitoring System</h1>
+    <button class="btn btn-outline" onclick="handleLogout()">Logout</button>
+  </header>
+
+  <main class="app-main">
+
+    <!-- ===================== DASHBOARD ===================== -->
+    <section class="dashboard-stats">
+      <div class="stat-card">
+        <span class="stat-label">Total Equipment</span>
+        <span class="stat-value" id="stat-total">0</span>
+      </div>
+      <div class="stat-card stat-green">
+        <span class="stat-label">Available</span>
+        <span class="stat-value" id="stat-available">0</span>
+      </div>
+      <div class="stat-card stat-orange">
+        <span class="stat-label">Borrowed</span>
+        <span class="stat-value" id="stat-borrowed">0</span>
+      </div>
+      <div class="stat-card stat-blue">
+        <span class="stat-label">Returned</span>
+        <span class="stat-value" id="stat-returned">0</span>
+      </div>
+      <div class="stat-card stat-red">
+        <span class="stat-label">Overdue</span>
+        <span class="stat-value" id="stat-overdue">0</span>
+      </div>
+    </section>
+
+    <!-- ===================== TABS ===================== -->
+    <nav class="tab-bar">
+      <button id="btn-equipment" class="tab-btn active" onclick="switchTab('equipment')">Equipment</button>
+      <button id="btn-transactions" class="tab-btn" onclick="switchTab('transactions')">Transactions</button>
+    </nav>
+
+    <!-- ===================== EQUIPMENT TAB ===================== -->
+    <section id="tab-equipment" class="tab-panel active">
+      <div class="toolbar">
+        <input
+          type="text"
+          id="equipment-search"
+          placeholder="Search by name or asset code..."
+          oninput="applyEquipmentFilters()"
+        />
+        <select id="equipment-availability-filter" onchange="applyEquipmentFilters()">
+          <option value="All">All Availability</option>
+          <option value="Available">Available</option>
+          <option value="Borrowed">Borrowed</option>
+        </select>
+        <button class="btn btn-primary" onclick="openAddEquipmentModal()">+ Add Equipment</button>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Asset Code</th>
+              <th>Equipment Name</th>
+              <th>Category</th>
+              <th>Condition</th>
+              <th>Availability</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="equipment-table-body">
+            <tr><td colspan="6" class="empty-row">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===================== TRANSACTIONS TAB ===================== -->
+    <section id="tab-transactions" class="tab-panel">
+      <div class="toolbar">
+        <input
+          type="text"
+          id="transaction-search"
+          placeholder="Search by borrower or equipment..."
+          oninput="applyTransactionFilters()"
+        />
+        <select id="transaction-status-filter" onchange="applyTransactionFilters()">
+          <option value="All">All Status</option>
+          <option value="Borrowed">Borrowed</option>
+          <option value="Returned">Returned</option>
+          <option value="Overdue">Overdue</option>
+        </select>
+        <button class="btn btn-primary" onclick="openAddTransactionModal()">+ Record Borrowing</button>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Equipment</th>
+              <th>Borrower</th>
+              <th>Type</th>
+              <th>Department</th>
+              <th>Date Borrowed</th>
+              <th>Due Date</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="transactions-table-body">
+            <tr><td colspan="8" class="empty-row">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===================== EQUIPMENT MODAL ===================== -->
+  <div id="equipment-modal" class="modal-overlay">
+    <div class="modal">
+      <h2 id="equipment-modal-title">Add Equipment</h2>
+      <form id="equipment-form" onsubmit="handleEquipmentFormSubmit(event)">
+        <label for="eq-name">Equipment Name</label>
+        <input type="text" id="eq-name" required placeholder="e.g. Epson Projector" />
+
+        <label for="eq-category">Category</label>
+        <input type="text" id="eq-category" required placeholder="e.g. Projector" />
+
+        <label for="eq-code">Asset Code</label>
+        <input type="text" id="eq-code" required placeholder="e.g. PROJ-001" />
+
+        <label for="eq-condition">Condition</label>
+        <select id="eq-condition">
+          <option value="Good">Good</option>
+          <option value="Fair">Fair</option>
+          <option value="For Repair">For Repair</option>
+        </select>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-outline" onclick="closeEquipmentModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Equipment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================== TRANSACTION MODAL ===================== -->
+  <div id="transaction-modal" class="modal-overlay">
+    <div class="modal">
+      <h2>New Borrowing Transaction</h2>
+      <form id="transaction-form" onsubmit="handleTransactionFormSubmit(event)">
+        <label for="txn-borrower-name">Borrower Name</label>
+        <input type="text" id="txn-borrower-name" required placeholder="Full name" />
+
+        <label for="txn-borrower-type">Borrower Type</label>
+        <select id="txn-borrower-type">
+          <option value="Student">Student</option>
+          <option value="Faculty">Faculty</option>
+          <option value="Staff">Staff</option>
+        </select>
+
+        <label for="txn-department">Department / Office</label>
+        <input type="text" id="txn-department" required placeholder="e.g. BSIT Department" />
+
+        <label for="txn-equipment">Equipment</label>
+        <select id="txn-equipment" required></select>
+
+        <label for="txn-date-borrowed">Date Borrowed</label>
+        <input type="date" id="txn-date-borrowed" required />
+
+        <label for="txn-due-date">Due Date</label>
+        <input type="date" id="txn-due-date" required />
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-outline" onclick="closeTransactionModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Borrowing Transaction</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================== EQUIPMENT HISTORY MODAL (bonus) ===================== -->
+  <div id="history-modal" class="modal-overlay">
+    <div class="modal">
+      <h2 id="history-title">Borrowing History</h2>
+      <ul id="history-list" class="history-list"></ul>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline" onclick="closeHistoryModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== CONFIRM MODAL ===================== -->
+  <div id="confirm-modal" class="modal-overlay">
+    <div class="modal modal-small">
+      <p id="confirm-message"></p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline" onclick="closeConfirmModal()">Cancel</button>
+        <button type="button" class="btn btn-danger" onclick="runConfirmedAction()">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/equipment.js"></script>
+  <script src="js/transactions.js"></script>
+  <script>
+    (async function init() {
+      const session = await requireAuth();
+      if (!session) return; // redirected to login
+
+      await refreshEquipmentView();
+      await refreshTransactionsView();
+      await refreshDashboard();
+    })();
+  </script>
+</body>
+</html>
