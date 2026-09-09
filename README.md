@@ -2,7 +2,7 @@ Online Equipment Borrowing and Return Monitoring System
 Course: Systems Analysis and Design — Laboratory Exercise 3-3B
 Name: Hans Christian
 Section: BSIT Section B
-Stack: HTML / CSS / Vanilla JavaScript · Supabase (PostgreSQL + Auth) · GitHub Pages
+Stack: HTML / CSS / JavaScript · Supabase (PostgreSQL + Auth) · GitHub Pages
 ---
 I. Problem Statement
 The College currently records equipment borrowing manually, using logbooks or spreadsheets. This makes it hard for the Equipment Custodian to know which items are borrowed, who has them, when they are due, and whether any are overdue. Manual tracking is affected by human error, lost records, and delayed follow-up on unreturned items, which leads to missing or damaged equipment and disputes over accountability. This system replaces the manual log with a centralized, authenticated web application that records every borrowing and return transaction in real time, automatically flags overdue items, and gives the custodian an at-a-glance dashboard of equipment status.
