@@ -129,7 +129,15 @@ function confirmDeleteEquipment(id, name) {
   openConfirmModal(`Delete "${name}"? This cannot be undone.`, async () => {
     const { error } = await supabaseClient.from("equipment").delete().eq("id", id);
     if (error) {
-      showToast("Delete failed: " + error.message, "error");
+      // Postgres code 23503 = foreign key violation: this item has borrow_transactions referencing it
+      if (error.code === "23503") {
+        showToast(
+          `"${name}" has borrowing history and can't be deleted. Return any active loan first, or keep the record for the audit trail.`,
+          "error"
+        );
+      } else {
+        showToast("Delete failed: " + error.message, "error");
+      }
       return;
     }
     showToast("Equipment deleted.", "success");
